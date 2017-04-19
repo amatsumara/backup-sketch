@@ -4,7 +4,7 @@ import tarfile
 import datetime
 import os
 import subprocess
-from shlex import quote
+#from shlex import quote
 
 BACKUP_PATH = r'/root/backups/'
 
@@ -50,12 +50,20 @@ def cleanup(archname):
 					print (os.path.join(curdir,f), "deleted")
 
 def main():
+	# Add reading what to backup from some configuration file: csv, json.
 	etc_dirs=["/etc"]
 
 	pack(etc_dirs, "etc")
 
 	#print datetime.datetime.today()+datetime.timedelta(days=30)
 	cleanup("etc")
+
+	# Backups are done by root. To rsync them somewhere set owner to some backup user.
+	for root, dirs, files in os.walk(BACKUP_PATH):
+		for curdir in dirs:
+			os.chown(os.path.join(root, curdir), 1000, 1000)
+		for curfile in files:
+			os.chown(os.path.join(root, curfile), 1000, 1000)
 
 
 if __name__ == "__main__":
